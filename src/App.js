@@ -1,9 +1,10 @@
 import { useState } from "react";
+import Box from "./Components/Box.jsx";
 import Navbar from "./Components/Navbar";
 import SearchResults from "./Components/SearchResults";
 import WatchList from "./Components/WatchList";
 import { MoviesLength } from "./Components/Navbar.jsx";
-import {Results} from './Components/SearchResults.jsx'
+import { Results } from "./Components/SearchResults.jsx";
 
 const tempMovieData = [
   {
@@ -57,10 +58,14 @@ export default function App() {
       </Navbar>
 
       <main className='main'>
-        <SearchResults movies={movies} setMovies={setMovies} >
-          <Results movies={movies} />
-        </SearchResults>
-        <WatchList />
+        <Box>
+          <SearchResults movies={movies} setMovies={setMovies}>
+            <Results movies={movies} />
+          </SearchResults>
+        </Box>
+        <Box>
+          <WatchList />
+        </Box>
       </main>
     </>
   );

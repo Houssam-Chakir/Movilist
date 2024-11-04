@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ToggleListButton } from "../App";
 
 const tempWatchedData = [
   {
@@ -23,27 +24,23 @@ const tempWatchedData = [
 
 export default function WatchList() {
   const [watched, setWatched] = useState(tempWatchedData);
-  const [isOpen2, setIsOpen2] = useState(true);
 
   return (
     <>
-      <div className='box'>
-        <button className='btn-toggle' onClick={() => setIsOpen2((open) => !open)}>
-          {isOpen2 ? "–" : "+"}
-        </button>
-        {isOpen2 && (
-          <>
-            <ListStats watched={watched} />
-
-            <ul className='list'>
-              {watched.map((movie) => (
-                <Movie movie={movie} />
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+      <ListStats watched={watched} />
+      <List>{watched}</List>
     </>
+  );
+}
+
+//*COMPONENTS ------------------------------------------------------------------
+function List({ children }) {
+  return (
+    <ul className='list'>
+      {children.map((movie) => (
+        <Movie movie={movie} />
+      ))}
+    </ul>
   );
 }
 

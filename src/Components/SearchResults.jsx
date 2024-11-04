@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import {ToggleListButton} from '../App'
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -22,13 +22,11 @@ const tempMovieData = [
 ];
 
 export default function SearchResults({ children }) {
-  const [isOpen1, setIsOpen1] = useState(true);
 
   return (
     <>
-      <ToggleListButton isOpen1={isOpen1} setIsOpen1={setIsOpen1} />
       {/* Children is Results component */}
-      <div className='box'>{isOpen1 && children}</div>
+        {children}
     </>
   );
 }
@@ -55,13 +53,5 @@ function Movie({ movie }) {
         </p>
       </div>
     </li>
-  );
-}
-
-function ToggleListButton({ isOpen1, setIsOpen1 }) {
-  return (
-    <button className='btn-toggle' onClick={() => setIsOpen1((open) => !open)}>
-      {isOpen1 ? "–" : "+"}
-    </button>
   );
 }
