@@ -1,24 +1,24 @@
 import { useState } from "react";
 
 export default function Navbar(props) {
-  const { moviesLength, children } = props;
+  const { query ,setQuery, children } = props;
 
   return (
     <>
       {/* Navbar */}
       <nav className='nav-bar'>
         <Logo />
-        <Input />
+        <Input query={query} setQuery={setQuery}/>
         {children}
       </nav>
     </>
   );
 }
 
-function Input() {
-  const [query, setQuery] = useState("");
+function Input({query, setQuery}) {
 
-  return <input className='search' type='text' placeholder='Search movies...' value={query} onChange={(e) => setQuery(e.target.value)} />;
+
+  return <input className='search' type='text' placeholder='Search movies...' value={query} onChange={(e) => setQuery(e.target.value)}/>;
 }
 
 function Logo() {

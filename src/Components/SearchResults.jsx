@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {ToggleListButton} from '../App'
+import { ToggleListButton } from "../App";
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -22,28 +22,31 @@ const tempMovieData = [
 ];
 
 export default function SearchResults({ children }) {
-
   return (
     <>
       {/* Children is Results component */}
-        {children}
+      {children}
     </>
   );
 }
 
-export function Results({ movies }) {
+export function Results({setSelectedTitle, selectedTitle, movies }) {
+  function handleSelectedMovie(title) {
+    setSelectedTitle(title === selectedTitle ? null : title);
+  }
   return (
-    <ul className='list'>
+    <ul className='list list-movies'>
       {movies?.map((movie) => (
-        <Movie movie={movie} />
+        <Movie onSelectedMovie={handleSelectedMovie} movie={movie} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie }) {
+function Movie({onSelectedMovie, movie }) {
+
   return (
-    <li key={movie.imdbID}>
+    <li key={movie.imdbID} onClick={() => onSelectedMovie(movie.Title)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>

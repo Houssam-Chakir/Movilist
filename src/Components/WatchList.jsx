@@ -22,8 +22,8 @@ const tempWatchedData = [
   },
 ];
 
-export default function WatchList() {
-  const [watched, setWatched] = useState(tempWatchedData);
+export default function WatchList({watched, setWatched}) {
+
 
   return (
     <>
@@ -60,7 +60,7 @@ function Movie({ movie }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{movie.runtime} min</span>
+          <span>{movie.Runtime} min</span>
         </p>
       </div>
     </li>
