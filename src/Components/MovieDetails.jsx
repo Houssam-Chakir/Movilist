@@ -7,6 +7,8 @@ export default function MovieDetails(props) {
   const [userRating, setUserRating] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const isWatched = watched.map((m) => m.Title).includes(movie.Title);
+  const watchedUserRating = watched.find((m) => m.Title === movie.Title)?.userRating;
 
   function handleCloseMovie() {
     setSelectedTitle(null);
@@ -14,13 +16,13 @@ export default function MovieDetails(props) {
   function handleAddWatched(movie) {
     console.log("movie: ", movie);
     const newWatchedMovie = movie;
-    newWatchedMovie.imdbRating = Number(newWatchedMovie.imdbRating)
-    newWatchedMovie.Runtime = Number(newWatchedMovie.Runtime.split(' ').at(0))
-    newWatchedMovie.userRating = userRating
+    newWatchedMovie.imdbRating = Number(newWatchedMovie.imdbRating);
+    newWatchedMovie.Runtime = Number(newWatchedMovie.Runtime.split(" ").at(0));
+    newWatchedMovie.userRating = userRating;
 
     setWatched([...watched, newWatchedMovie]);
-    handleCloseMovie()
-    setUserRating(0)
+    handleCloseMovie();
+    setUserRating(0);
   }
 
   async function fetchMovie() {
@@ -53,11 +55,30 @@ export default function MovieDetails(props) {
     fetchMovie();
   }, [selectedTitle]);
 
+  useEffect(() => {
+    if (!movie.Title) return;
+    document.title = movie.Title;
+    console.log("movie.Title: ", movie.Title);
+
+    return () => (document.title = "Movilist");
+  }, [movie]);
+
+  useEffect(() => {
+    const callback = (e) => {
+      if (e.code === "Escape") {
+        handleCloseMovie();
+      }
+      document.addEventListener("keydown", callback);
+    };
+
+    return () => document.removeEventListener("keydown", callback);
+  }, [handleCloseMovie]);
+
   return (
     <>
       {isLoading && <Loader />}
       {errorMsg && <ErrorMessage error={errorMsg} />}
-      {!errorMsg && (
+      {!errorMsg && !isLoading && (
         <div className='details'>
           <header>
             <button className='btn-back' onClick={handleCloseMovie}>
@@ -76,12 +97,21 @@ export default function MovieDetails(props) {
           </header>
           <section>
             <div className='rating'>
-              <StarRating maxRating={10} size={24} onSetExternalRating={setUserRating} />
+              {!isWatched ? (
+                <>
+                  <StarRating maxRating={10} size={24} onSetExternalRating={setUserRating} />
 
-              {userRating > 0 && <button className='btn-add' onClick={() => handleAddWatched(movie)}>
-                + Add to list
-              </button>}
+                  {userRating > 0 && (
+                    <button className='btn-add' onClick={() => handleAddWatched(movie)}>
+                      + Add to list
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>You rated this movie {watchedUserRating} ⭐️</p>
+              )}
             </div>
+
             <p>
               <em>{movie.Plot}</em>
             </p>

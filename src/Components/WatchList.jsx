@@ -22,29 +22,31 @@ const tempWatchedData = [
   },
 ];
 
-export default function WatchList({watched, setWatched}) {
-
+export default function WatchList({ watched, setWatched }) {
+  function handleRemoveWatched(title) {
+    setWatched((watched) => watched.filter((m) => m.Title !== title));
+  }
 
   return (
     <>
       <ListStats watched={watched} />
-      <List>{watched}</List>
+      <List onRemoveWatched={handleRemoveWatched}>{watched}</List>
     </>
   );
 }
 
 //*COMPONENTS ------------------------------------------------------------------
-function List({ children }) {
+function List({ onRemoveWatched, children }) {
   return (
     <ul className='list'>
       {children.map((movie) => (
-        <Movie movie={movie} />
+        <Movie onRemoveWatched={onRemoveWatched} movie={movie} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie }) {
+function Movie({ onRemoveWatched, movie }) {
   return (
     <li key={movie.imdbID}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
@@ -62,6 +64,7 @@ function Movie({ movie }) {
           <span>⏳</span>
           <span>{movie.Runtime} min</span>
         </p>
+        <button className='btn-delete' onClick={() => onRemoveWatched(movie.Title)}>X</button>
       </div>
     </li>
   );
@@ -86,11 +89,11 @@ function ListStats(props) {
         </p>
         <p>
           <span>⭐️</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(1)}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}</span>
+          <span>{avgUserRating.toFixed(1)}</span>
         </p>
         <p>
           <span>⏳</span>

@@ -50,37 +50,39 @@ const tempWatchedData = [
 ];
 
 const KEY = "c4a79159";
-const QUERY = "top gun";
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  async function fetchMovies() {
+  async function fetchMovies(controller) {
     try {
       setIsLoading(true);
       setErrorMsg("");
 
-      if (query.length < 3) {
-        setMovies([]);
+      if (query?.length < 3) {
+        setMovies(tempMovieData);
         return;
       }
 
-      const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`);
+      const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&s=${query}`, { signal: controller.signal });
       const data = await res.json();
       console.log("data: ", data);
 
       if (!res.ok) throw new Error("Something went wrong with loading movies");
       if (data.Response === "False") throw new Error(data.Error);
 
-      setMovies((movies) => data.Search);
+      setMovies((movies) => (data.Search));
+      console.log('movies: ', movies);
     } catch (error) {
       console.log("error", error.message);
-      setErrorMsg(error.message);
+      if (error.name !== "AbortError") {
+        setErrorMsg(error.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +97,10 @@ export default function App() {
 
   useEffect(
     function () {
-      console.log("query: ", query);
-      fetchMovies();
+      const controller = new AbortController();
+      fetchMovies(controller);
+
+      return () => controller.abort();
     },
     [query]
   );
@@ -117,16 +121,19 @@ export default function App() {
           </SearchResults>
         </Box>
         <Box>
-          {selectedTitle ? <MovieDetails
-                              watched={watched}
-                              setWatched={setWatched}
-                              Loader={Loader}
-                              ErrorMessage={ErrorMessage}
-                              KEY={KEY}
-                              selectedTitle={selectedTitle}
-                              setSelectedTitle={setSelectedTitle}
-                            />
-                          : <WatchList watched={watched} setWatched={setWatched} />}
+          {selectedTitle ? (
+            <MovieDetails
+              watched={watched}
+              setWatched={setWatched}
+              Loader={Loader}
+              ErrorMessage={ErrorMessage}
+              KEY={KEY}
+              selectedTitle={selectedTitle}
+              setSelectedTitle={setSelectedTitle}
+            />
+          ) : (
+            <WatchList watched={watched} setWatched={setWatched} />
+          )}
         </Box>
       </main>
     </>
