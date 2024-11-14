@@ -28,36 +28,15 @@ const tempMovieData = [
   },
 ];
 
-const tempWatchedData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster: "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
-
 const KEY = "c4a79159";
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [watched, setWatched] = useState(() => JSON.parse(localStorage.getItem("watched")));
 
   async function fetchMovies(controller) {
     try {
@@ -76,8 +55,9 @@ export default function App() {
       if (!res.ok) throw new Error("Something went wrong with loading movies");
       if (data.Response === "False") throw new Error(data.Error);
 
-      setMovies((movies) => (data.Search));
-      console.log('movies: ', movies);
+      // eslint-disable-next-line no-unused-vars
+      setMovies((movies) => (movies = data.Search));
+      console.log("movies: ", movies);
     } catch (error) {
       console.log("error", error.message);
       if (error.name !== "AbortError") {
@@ -103,6 +83,13 @@ export default function App() {
       return () => controller.abort();
     },
     [query]
+  );
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
   );
 
   return (
