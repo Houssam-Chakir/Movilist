@@ -1,24 +1,31 @@
-import { useState } from "react";
+import { useRef } from "react";
+import { useKey } from "../useKey";
 
 export default function Navbar(props) {
-  const { query ,setQuery, children } = props;
+  const { query, setQuery, children } = props;
 
   return (
     <>
       {/* Navbar */}
       <nav className='nav-bar'>
         <Logo />
-        <Input query={query} setQuery={setQuery}/>
+        <Input query={query} setQuery={setQuery} />
         {children}
       </nav>
     </>
   );
 }
 
-function Input({query, setQuery}) {
+function Input({ query, setQuery }) {
+  const inputRef = useRef(null);
 
+  useKey("Enter", () => {
+    if (document.activeElement === inputRef.current) return;
+    inputRef.current.focus();
+    setQuery("");
+  });
 
-  return <input className='search' type='text' placeholder='Search movies...' value={query} onChange={(e) => setQuery(e.target.value)}/>;
+  return <input className='search' ref={inputRef} type='text' placeholder='Search movies...' value={query} onChange={(e) => setQuery(e.target.value)} />;
 }
 
 function Logo() {

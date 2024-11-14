@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
+import { useKey } from "../useKey";
 
 export default function MovieDetails(props) {
   const { KEY, selectedTitle, setSelectedTitle, Loader, ErrorMessage, watched, setWatched } = props;
   const [movie, setMovie] = useState({});
-  const [userRating, setUserRating] = useState(0);
+  const [userRating, setUserRating] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const isWatched = watched.map((m) => m.Title).includes(movie.Title);
   const watchedUserRating = watched.find((m) => m.Title === movie.Title)?.userRating;
+
+  const ratingCount = useRef(0);
+
+  console.log("ratingCount.current: ", ratingCount.current);
 
   function handleCloseMovie() {
     setSelectedTitle(null);
@@ -19,39 +24,44 @@ export default function MovieDetails(props) {
     newWatchedMovie.imdbRating = Number(newWatchedMovie.imdbRating);
     newWatchedMovie.Runtime = Number(newWatchedMovie.Runtime.split(" ").at(0));
     newWatchedMovie.userRating = userRating;
+    newWatchedMovie.ratingCount = ratingCount.current;
 
     setWatched([...watched, newWatchedMovie]);
     handleCloseMovie();
     setUserRating(0);
   }
 
-  async function fetchMovie() {
-    try {
-      setIsLoading(true);
-      setErrorMsg(null);
-
-      const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&t=${selectedTitle}`);
-      const data = await res.json();
-      console.log(data);
-      if (!res.ok) {
-        console.log("res.ok: ", res.ok);
-        throw new Error("Could not recieve movie details");
-      }
-      if (data.Response === "False") {
-        throw new Error(data.Error);
-      }
-
-      setMovie(data);
-    } catch (error) {
-      console.log(error);
-      setErrorMsg(error.message);
-      console.log("setErrorMsg: ", setErrorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  useEffect(() => {
+    if (userRating) ratingCount.current++;
+  }, [userRating]);
 
   useEffect(() => {
+    async function fetchMovie() {
+      try {
+        setIsLoading(true);
+        setErrorMsg(null);
+
+        const res = await fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=${KEY}&t=${selectedTitle}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.log("res.ok: ", res.ok);
+          throw new Error("Could not recieve movie details");
+        }
+        if (data.Response === "False") {
+          throw new Error(data.Error);
+        }
+
+        setMovie(data);
+      } catch (error) {
+        console.log(error);
+        setErrorMsg(error.message);
+        console.log("setErrorMsg: ", setErrorMsg);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     fetchMovie();
   }, [selectedTitle]);
 
@@ -63,16 +73,7 @@ export default function MovieDetails(props) {
     return () => (document.title = "Movilist");
   }, [movie]);
 
-  useEffect(() => {
-    const callback = (e) => {
-      if (e.code === "Escape") {
-        handleCloseMovie();
-      }
-      document.addEventListener("keydown", callback);
-    };
-
-    return () => document.removeEventListener("keydown", callback);
-  }, [handleCloseMovie]);
+  useKey("Escape", handleCloseMovie);
 
   return (
     <>
